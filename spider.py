@@ -86,10 +86,12 @@ def run_spider(path: str = DATA_PATH) -> tuple[list[Page], bool]:
 
     parents_url_set: dict[str, set[str]] = defaultdict(set)
     for purl, page in visited.items():
+        children_id = set()
         for curl in page.children_url:
             child = visited[curl]
-            page.children_id.append(child.id)
+            children_id.add(child.id)
             parents_url_set[curl].add(purl)
+        page.children_id = list(children_id)
     for curl, parents_url in parents_url_set.items():
         child = visited[curl]
         child.parents_url = list(parents_url)

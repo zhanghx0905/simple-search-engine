@@ -1,4 +1,5 @@
 import os
+from dataclasses import asdict
 
 import numpy as np
 from gensim.corpora import Dictionary
@@ -27,34 +28,43 @@ class Index:
             self.tfidf[self.titles_bow], len(self.dictionary)
         )
 
-    def search(self, query: str, topk: int = 10): #-> list[Page]:
+    def search(self, query: str, topk: int = 10):  # -> list[Page]:
         tokens = get_tokens(query)
         query_bow = self.dictionary.doc2bow(tokens)
         query_tfidf = self.tfidf[query_bow]
         bsim = self.bindex[query_tfidf]
         tsim = self.tindex[query_tfidf]
-        sim = tsim * 10 + bsim
-        indices = np.argpartition(sim, -topk)[-topk:]
-        # TODO return page object
-        return {sim[id]: self.pages[id].url for id in indices}
+        # Only float64 is Json serializable
+        sim: np.ndarray = np.float64(tsim * 10 + bsim)
+        indices = reversed(np.argsort(sim)[-topk:])
+        return [
+            {"score": sim[id], **asdict(self.pages[id])}
+            for id in indices
+            if sim[id] > 0
+        ]
 
     def similar_pages(self, qid: int, topk: int = 5):
         bsim = self.bindex[self.bodies_bow[qid]]
         tsim = self.tindex[self.titles_bow[qid]]
-        sim = tsim * 10 + bsim
-        indices = np.argpartition(sim, -topk)[-topk-1:-1]
-        # TODO return page object
-        return {sim[id]: self.pages[id].url for id in indices}
-
+        sim: np.ndarray = np.float64(tsim * 10 + bsim)
+        indices = reversed(np.argsort(sim)[-topk - 1 : -1])
+        return [
+            {"score": sim[id], **asdict(self.pages[id])}
+            for id in indices
+            if sim[id] > 0
+        ]
 
 
 def load_index():
     pages, updated = run_spider()
     if updated or not os.path.isfile(INDEX_PATH):
+        print("building index")
         index = Index(pages)
         save_pkl(INDEX_PATH, index)
+        print(f"index saved at {INDEX_PATH}")
     else:
         index: Index = load_pkl(INDEX_PATH)
+        print(f"index loaded from {INDEX_PATH}")
     return index
 
 
@@ -62,5 +72,7 @@ if __name__ == "__main__":
     index = load_index()
     from pprint import pprint
 
-    pprint(index.search("hong kong"))
-    pprint(index.similar_pages(316))    # PG page
+    ret = index.search("HKUST")
+    for r in ret:
+        print(r["score"], r["url"], r["title"])
+    # pprint(index.similar_pages(316))  # PG page
