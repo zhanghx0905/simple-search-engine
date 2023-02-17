@@ -7,13 +7,12 @@ from urllib.parse import urljoin
 
 from requests_html import HTMLSession
 
-from utils import DATA_PATH, load_json, save_json
+from utils import DATA_PATH, extract_keywords, load_json, save_json
 
 HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.41"
 }
 ROOT = "https://www.cse.ust.hk/~kwtleung/COMP4321/testpage.htm"
-
 
 
 @dataclass
@@ -24,6 +23,7 @@ class Page:
     body: str
     last_mod_time: str
     size: str
+    keywords: list[tuple[str, int]] = field(default_factory=list)
     children_url: list[str] = field(default_factory=list)
     children_id: list[int] = field(default_factory=list)
     parents_url: list[str] = field(default_factory=list)
@@ -44,6 +44,7 @@ def is_not_newer(a: str, b: str):
     da = parsedate(a)[:6]
     db = parsedate(b)[:6]
     return da <= db
+
 
 
 def run_spider(path: str = DATA_PATH) -> tuple[list[Page], bool]:
@@ -67,6 +68,7 @@ def run_spider(path: str = DATA_PATH) -> tuple[list[Page], bool]:
 
         title = r.html.find("head > title", first=True).text
         body = r.html.find("body", first=True).text
+        keywords = extract_keywords(title, body)
         size = r.headers["Content-Length"]
         children = set(urljoin(url, l) for l in r.html.links)
         page = Page(
@@ -76,6 +78,7 @@ def run_spider(path: str = DATA_PATH) -> tuple[list[Page], bool]:
             body=body,
             size=size,
             last_mod_time=last_mod_time,
+            keywords=keywords,
             children_url=list(children),
         )
         visited[url] = page
