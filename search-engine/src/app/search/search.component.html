@@ -1,0 +1,60 @@
+<section>
+    <form [formGroup]="searchForm">
+        <label>
+            <input type="text" (keyup)="searchTerm.next($event)" formControlName="search" placeholder="Search..." />
+
+            <div *ngIf="loading">
+                <p class="search-message">Searching</p>
+                <div class="lds-ellipsis">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </label>
+
+    </form>
+
+    <div *ngIf="paginationElements">
+        <div class="results">
+            <div class="repo"
+                *ngFor="let item of paginationElements | paginate: { itemsPerPage: 6, currentPage: page }">
+                <div class="page-info">
+                    <h1><a href="{{item.url}}" target="_blank">{{item.title}}</a></h1>
+                    <!-- <p>URL: {{item.url}}</p> -->
+                    <p>Last modified: {{item.last_mod_time}}</p>
+                    <p>Size: {{item.size}}</p>
+                    <p>Score: {{item.score | slice:0:6}}</p>
+                    <p>Keywords:</p>
+                    <span *ngFor="let keyword of item.keywords">
+                        <p> {{keyword[0]}} freq: {{keyword[1]}} </p>
+                    </span>
+
+                    <p>Parent links:</p>
+                    <ul>
+                        <li *ngFor="let parentLink of item.parents_url">
+                            <a href="{{parentLink}}" target="_blank">{{parentLink}}</a>
+                        </li>
+                    </ul>
+
+                    <p>Child links:</p>
+                    <ul>
+                        <li *ngFor="let childLink of item.children_url">
+                            <a href="{{childLink}}" target="_blank">{{childLink}}</a>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+        <pagination-controls (pageChange)="page = $event"></pagination-controls>
+    </div>
+
+    <div *ngIf="errorMessage" class="errorMessage">
+        <h2>Error</h2>
+        <p class="error">{{errorMessage}}</p>
+    </div>
+
+
+</section>
