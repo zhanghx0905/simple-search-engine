@@ -27,7 +27,7 @@ npm start ng serve --open
 
 You should see the web application on http://localhost:4200.
 
-![](.\doc\demo.png)
+![](./doc/demo.png)
 
 ## References
 
