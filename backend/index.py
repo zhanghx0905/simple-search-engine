@@ -28,7 +28,7 @@ class Index:
             self.tfidf[self.titles_bow], len(self.dictionary)
         )
 
-    def search(self, query: str, topk: int = 10):  # -> list[Page]:
+    def search(self, query: str, topk: int = 50):  # -> list[Page]:
         tokens = get_tokens(query)
         query_bow = self.dictionary.doc2bow(tokens)
         query_tfidf = self.tfidf[query_bow]
