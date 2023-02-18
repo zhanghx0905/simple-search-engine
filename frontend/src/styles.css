@@ -65,6 +65,10 @@ input[type="text"] {
   margin-bottom: 2px;
 }
 
+.repo .page-info {
+  margin-bottom: 20px;
+}
+
 .repo ul {
   margin-block-start: 2px;
   margin-inline-start: 0px;
@@ -76,6 +80,7 @@ input[type="text"] {
   margin-block-start: 2px;
   margin-inline-start: 0px;
 }
+
 .repo ul li p {
   margin: 0
 }
