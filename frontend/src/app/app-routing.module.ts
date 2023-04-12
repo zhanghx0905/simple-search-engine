@@ -1,13 +1,14 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from "@angular/router";
+import { RouterModule, Routes } from '@angular/router';
 
+import { SearchComponent } from './search/search.component';
 
-const routes: Routes = [
-  { path: "", loadChildren: () => import("./search/search.module").then(m => m.SearchModule) }
-]
+const routes: Routes = [{ path: '', component: SearchComponent }];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { scrollPositionRestoration: "enabled" })],
-  exports: [RouterModule]
+  imports: [
+    RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' }),
+  ],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
