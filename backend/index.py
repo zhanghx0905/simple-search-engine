@@ -42,16 +42,9 @@ class Index:
             if sim[id] > 0
         ]
 
-    def similar_pages(self, qid: int, topk: int = 5):
-        bsim = self.bindex[self.bodies_bow[qid]]
-        tsim = self.tindex[self.titles_bow[qid]]
-        sim: np.ndarray = np.float64(tsim * 10 + bsim)
-        indices = reversed(np.argsort(sim)[-topk - 1 : -1])
-        return [
-            {"score": sim[id], **asdict(self.pages[id])}
-            for id in indices
-            if sim[id] > 0
-        ]
+def cal_scores(title, body):
+    # Only float64 is Json serializable
+    return np.float64(5 * title + body)
 
 
 def load_index():
