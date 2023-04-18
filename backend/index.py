@@ -34,8 +34,7 @@ class Index:
         query_tfidf = self.tfidf[query_bow]
         bsim = self.bindex[query_tfidf]
         tsim = self.tindex[query_tfidf]
-        # Only float64 is Json serializable
-        sim: np.ndarray = np.float64(tsim * 10 + bsim)
+        sim: np.ndarray = cal_scores(tsim, bsim)
         indices = reversed(np.argsort(sim)[-topk:])
         return [
             {"score": sim[id], **asdict(self.pages[id])}

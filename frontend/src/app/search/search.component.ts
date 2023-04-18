@@ -20,7 +20,7 @@ import { QUERY_URL } from '../globals';
 })
 export class SearchComponent implements OnInit {
   public loading: boolean = false;
-  public searchTerm = new Subject<Event>();
+  public searchTerm = new Subject<string>();
   public paginationElements: any;
   public errorMessage: any;
   public page: any;
@@ -51,10 +51,6 @@ export class SearchComponent implements OnInit {
   public search() {
     this.searchTerm
       .pipe(
-        map((e: any) => {
-          console.log(e.target.value);
-          return e.target.value;
-        }),
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((term) => {
@@ -71,7 +67,7 @@ export class SearchComponent implements OnInit {
       )
       .subscribe((v) => {
         this.loading = false;
-        //return the results and pass the to the paginate module
+        // return the results and pass the to the paginate module
         for (let i = 0; i < v.length; ++i) {
           v[i].score = String(v[i].score);
         }
@@ -81,5 +77,11 @@ export class SearchComponent implements OnInit {
 
   ngOnInit() {
     this.search();
+  }
+
+  similarPages(keywords: [string, number][]) {
+    let query = keywords.map((item) => item[0]).join(' ');
+    this.searchForm.setValue({ search: query });
+    this.searchTerm.next(this.searchForm.getRawValue().search ?? '');
   }
 }
