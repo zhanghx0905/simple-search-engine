@@ -1,9 +1,10 @@
 import json
 import pickle
+import re
+from collections import Counter
 from string import punctuation, whitespace
 
 import spacy  # python -m spacy download en_core_web_sm
-from nltk.probability import FreqDist
 
 DATA_PATH = "data/output.json"
 INDEX_PATH = "data/index.pkl"
@@ -41,6 +42,7 @@ def load_stopwords(path: str):
 
 STOPWORDS = load_stopwords(STOPWORDS_PATH)
 NLP = spacy.load("en_core_web_sm")
+PUNC_ESCAPER = re.compile(r"[{}]+".format(punctuation))
 
 
 def escape(s: str):
@@ -48,8 +50,9 @@ def escape(s: str):
 
 
 def get_tokens(text: str, pharse: bool = True) -> list[str]:
-    doc = NLP(text.lower())
-    stems = [token.lemma_ for token in doc]
+    text = PUNC_ESCAPER.sub(" ", text)
+    doc = NLP(text)
+    stems = [token.lemma_.lower() for token in doc]
     tokens = [token for token in stems if not escape(token)]
     if pharse:
         tokens.extend(
@@ -64,7 +67,7 @@ def get_tokens(text: str, pharse: bool = True) -> list[str]:
 def extract_keywords(title, article, n=5):
     tokens = get_tokens(article, False) + get_tokens(title, False)
     # calculate word frequencies
-    freq_dist = FreqDist(tokens)
+    freq_dist = Counter(tokens)
 
     # get the top n keywords
     top_n = freq_dist.most_common(n)
