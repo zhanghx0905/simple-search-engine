@@ -33,10 +33,7 @@
           <h2>
             <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
           </h2>
-          <!-- <p>URL: {{item.url}}</p> -->
-          <button (click)="similarPages(item.keywords)">
-            Get Similar Pages
-          </button>
+          <a href="{{ item.url }}">{{item.url}}</a>
           <p>Last modified: {{ item.last_mod_time | slice : 0 : 25 }}</p>
           <p>Size: {{ item.size }}</p>
           <p>Score: {{ item.score | slice : 0 : 6 }}</p>
@@ -46,6 +43,9 @@
               <p>{{ keyword[0] }} frequency: {{ keyword[1] }}</p>
             </li>
           </ul>
+          <button (click)="similarPages(item.keywords)">
+            Get Similar Pages
+          </button>
           <p>Parent links:</p>
           <ul>
             <li *ngFor="let parentLink of item.parents_url">
